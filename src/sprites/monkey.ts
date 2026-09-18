@@ -20,11 +20,7 @@ export class Monkey implements Sprite {
     this.context = gameCanvas.context;
   }
 
-  update(): void {
-    if (Math.random() >= 0.99) {
-      this.flipped = !this.flipped;
-    }
-  }
+  update(): void {}
 
   public async initialise(x: number, y: number, scale: number) {
     this.image = await loadImage(monkeyImage);
@@ -39,15 +35,15 @@ export class Monkey implements Sprite {
       throw new Error('Monkey has not been initialised');
     }
 
+    const width = this.image.width * this.scale;
+    const height = this.image.height * this.scale;
+    const centerX = this.x + width / 2;
+    const centerY = this.y + height / 2;
+
     this.context.save();
-    if (this.flipped) {
-      this.context.scale(-1, 1);
-
-      drawSprite(this.context, this.image, -this.x - this.image.width, this.y, this.scale);
-    } else {
-      drawSprite(this.context, this.image, this.x, this.y, this.scale);
-    }
-
+    this.context.translate(centerX, centerY);
+    this.context.scale(this.flipped ? -1 : 1, 1);
+    drawSprite(this.context, this.image, -width / 2, -height / 2, this.scale);
     this.context.restore();
   }
 
