@@ -1,53 +1,58 @@
 import monkeyImage from '../assets/monkey.png';
 import type { GameCanvas } from '../game/game-canvas';
 import { drawSprite, loadImage } from '../game/graphics';
-import type { SpriteSettings } from '../types/sprite-settings';
 import type { Sprite } from './sprite';
 
 export class Monkey implements Sprite {
-  private readonly context: CanvasRenderingContext2D;
-  private image: HTMLImageElement | null = null;
-  private settings: SpriteSettings | null = null;
+  public readonly context: CanvasRenderingContext2D;
+  public image: HTMLImageElement | null = null;
   private flipped = false;
+  public x: number = 0;
+  public y: number = 0;
+  public scale: number = 1;
+
+  private lastBananaThrowDate = new Date();
+  public get lastBananaThrowTime(): number {
+    return this.lastBananaThrowDate.getTime();
+  }
 
   constructor(gameCanvas: GameCanvas) {
     this.context = gameCanvas.context;
   }
 
   update(): void {
-    if (!this.settings) {
-      throw new Error('Monkey has not been initialised');
-    }
-
     if (Math.random() >= 0.99) {
       this.flipped = !this.flipped;
     }
   }
 
-  public async initialise(settings: SpriteSettings) {
+  public async initialise(x: number, y: number, scale: number) {
     this.image = await loadImage(monkeyImage);
 
-    this.settings = { ...settings, width: this.image.width, height: this.image.height };
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
   }
 
   public async draw() {
-    if (!this.image || !this.settings) {
+    if (!this.image) {
       throw new Error('Monkey has not been initialised');
-    }
-
-    if (!this.settings.width) {
-      throw new Error('Monkey has no width');
     }
 
     this.context.save();
     if (this.flipped) {
       this.context.scale(-1, 1);
 
-      drawSprite(this.context, this.image, { ...this.settings, x: -this.settings.x - this.settings.width });
+      drawSprite(this.context, this.image, -this.x - this.image.width, this.y, this.scale);
     } else {
-      drawSprite(this.context, this.image, this.settings);
+      drawSprite(this.context, this.image, this.x, this.y, this.scale);
     }
 
     this.context.restore();
+  }
+
+  public throwBanana() {
+    this.lastBananaThrowDate = new Date();
+    this.flipped = !this.flipped;
   }
 }

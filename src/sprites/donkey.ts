@@ -3,15 +3,17 @@ import { KEYS } from '../constants';
 import type { GameCanvas } from '../game/game-canvas';
 import { drawSprite, loadImage } from '../game/graphics';
 import type { Keyboard } from '../game/keyboard';
-import type { SpriteSettings } from '../types/sprite-settings';
 import type { Sprite } from './sprite';
 
 export class Donkey implements Sprite {
-  private readonly context: CanvasRenderingContext2D;
-  private readonly keyboard: Keyboard;
-  private image: HTMLImageElement | null = null;
-  private settings: SpriteSettings | null = null;
+  public readonly context: CanvasRenderingContext2D;
+  public readonly keyboard: Keyboard;
+  public image: HTMLImageElement | null = null;
   private direction: 'left' | 'right' = 'left';
+  public x: number = 0;
+  public y: number = 0;
+  public scale: number = 1;
+  private moveSpeed: number = 0;
 
   constructor(gameCanvas: GameCanvas, keyboard: Keyboard) {
     this.context = gameCanvas.context;
@@ -19,43 +21,38 @@ export class Donkey implements Sprite {
   }
 
   update(): void {
-    if (!this.settings) {
-      throw new Error('Donkey has not been initialised');
-    }
-
     if (this.keyboard.isDown(KEYS.a) || this.keyboard.isDown(KEYS.left)) {
-      this.settings.x = this.settings.x - (this.settings.moveSpeed ?? 1);
+      this.x = this.x - (this.moveSpeed ?? 1);
       this.direction = 'left';
     }
 
     if (this.keyboard.isDown(KEYS.d) || this.keyboard.isDown(KEYS.right)) {
-      this.settings.x = this.settings.x + (this.settings.moveSpeed ?? 1);
+      this.x = this.x + (this.moveSpeed ?? 1);
       this.direction = 'right';
     }
   }
 
-  public async initialise(settings: SpriteSettings) {
+  public async initialise(x: number, y: number, scale: number, moveSpeed: number = 0) {
     this.image = await loadImage(donkeyImage);
 
-    this.settings = { ...settings, width: this.image.width, height: this.image.height };
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
+    this.moveSpeed = moveSpeed;
   }
 
   public async draw() {
-    if (!this.image || !this.settings) {
-      throw new Error('Donkey has not been initialised');
-    }
-
-    if (!this.settings.width) {
-      throw new Error('Donkey has no width');
+    if (!this.image) {
+      throw new Error('Donkey has no image');
     }
 
     this.context.save();
     if (this.direction === 'right') {
       this.context.scale(-1, 1);
 
-      drawSprite(this.context, this.image, { ...this.settings, x: -this.settings.x - this.settings.width });
+      drawSprite(this.context, this.image, -this.x - this.image.width, this.y, this.scale);
     } else {
-      drawSprite(this.context, this.image, this.settings);
+      drawSprite(this.context, this.image, this.x, this.y, this.scale);
     }
 
     this.context.restore();

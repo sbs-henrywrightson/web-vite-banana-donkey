@@ -1,8 +1,12 @@
-import type { Keyboard } from '../game/keyboard';
-import type { SpriteSettings } from '../types/sprite-settings';
-
 export interface Sprite {
-  initialise(settings: SpriteSettings, keyboard?: Keyboard): Promise<void>;
+  context: CanvasRenderingContext2D;
+  image: HTMLImageElement | null;
+
+  x: number;
+  y: number;
+  scale: number;
+
+  initialise(x: number, y: number, scale: number): Promise<void>;
   update(): void;
   draw(context: CanvasRenderingContext2D): void;
 }

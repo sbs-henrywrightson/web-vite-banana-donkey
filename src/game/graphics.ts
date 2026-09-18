@@ -1,4 +1,3 @@
-import type { SpriteSettings } from '../types/sprite-settings';
 import type { GameCanvas } from './game-canvas';
 
 export async function loadImage(path: string): Promise<HTMLImageElement> {
@@ -10,14 +9,16 @@ export async function loadImage(path: string): Promise<HTMLImageElement> {
   });
 }
 
-export function drawSprite(context: CanvasRenderingContext2D, image: HTMLImageElement, settings: SpriteSettings) {
-  if (!settings.width || !settings.height) {
-    throw new Error('Sprite dimensions not initialised');
-  }
-
-  const width = settings.width * settings.scale;
-  const height = settings.height * settings.scale;
-  context.drawImage(image, settings.x, settings.y, width, height);
+export function drawSprite(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  scale: number,
+) {
+  const width = image.width * scale;
+  const height = image.height * scale;
+  context.drawImage(image, x, y, width, height);
 }
 
 export function clearCanvas(gameCanvas: GameCanvas) {
