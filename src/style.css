@@ -48,6 +48,16 @@
   }
 }
 
+@font-face {
+  font-family: 'Orbitron';
+  src: url('./assets/fonts/Orbitron-VariableFont_wght.ttf') format('woff2');
+}
+
+@font-face {
+  font-family: 'DSEG7Classic-Bold';
+  src: url('./assets/fonts/DSEG7Classic-Bold.woff2') format('woff2');
+}
+
 body {
   margin: 0;
 }

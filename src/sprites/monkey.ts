@@ -1,4 +1,4 @@
-import monkeyImage from '../assets/monkey.png';
+import monkeyImage from '../assets/images/monkey.png';
 import type { GameCanvas } from '../game/game-canvas';
 import { drawSprite, loadImage } from '../game/graphics';
 import type { Coordinate } from '../types';

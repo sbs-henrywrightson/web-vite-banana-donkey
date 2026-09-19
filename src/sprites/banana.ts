@@ -1,4 +1,4 @@
-import bananaImage from '../assets/banana.png';
+import bananaImage from '../assets/images/banana.png';
 import { BANANA_DEFAULTS } from '../constants';
 import type { GameCanvas } from '../game/game-canvas';
 import { bezierCurve, drawSprite, loadImage } from '../game/graphics';
@@ -85,31 +85,5 @@ export class Banana implements Sprite {
     this.context.bezierCurveTo;
 
     this.context.restore();
-  }
-
-  public async drawBox() {
-    if (!this.image) {
-      throw new Error('Banana has not been initialised');
-    }
-
-    this.context.strokeRect(
-      this.position.x,
-      this.position.y,
-      this.image?.width * this.scale,
-      this.image?.height * this.scale,
-    );
-  }
-
-  public async drawFilledBox() {
-    if (!this.image) {
-      throw new Error('Banana has not been initialised');
-    }
-
-    this.context.fillRect(
-      this.position.x,
-      this.position.y,
-      this.image?.width * this.scale,
-      this.image?.height * this.scale,
-    );
   }
 }

@@ -7,6 +7,7 @@ import { GameCanvas } from './game-canvas';
 import { clearCanvas, getSpriteHitBox } from './graphics';
 import { Keyboard } from './keyboard';
 import { Sounds } from './sounds';
+import { UI } from './ui';
 import { intersect, randomNumber } from './utilities';
 
 export class Game {
@@ -14,10 +15,12 @@ export class Game {
   private readonly world: World;
   private readonly donkey: Donkey;
   private readonly monkey: Monkey;
+  private readonly sounds: Sounds;
+  private readonly ui: UI;
+
   private bananas: Banana[] = [];
   private previousFrameTime: number = 0.1;
   private spawnTimer = 0;
-  private sounds = new Sounds();
 
   private frame = (timeStamp: number) => void this.renderFrame(timeStamp);
 
@@ -25,19 +28,23 @@ export class Game {
     this.gameCanvas = new GameCanvas();
 
     this.world = new World(this.gameCanvas);
-
     this.donkey = new Donkey(this.gameCanvas, new Keyboard());
     this.monkey = new Monkey(this.gameCanvas);
+
+    this.sounds = new Sounds();
+    this.ui = new UI(this.gameCanvas);
   }
 
   public async initialise() {
     await this.world.initialise();
+
     await this.donkey.initialise(
       DONKEY_DEFAULTS.x,
       DONKEY_DEFAULTS.y,
       DONKEY_DEFAULTS.scale,
       DONKEY_DEFAULTS.moveSpeed,
     );
+
     await this.monkey.initialise(MONKEY_DEFAULTS.x, MONKEY_DEFAULTS.y, MONKEY_DEFAULTS.scale);
   }
 
@@ -55,28 +62,28 @@ export class Game {
 
     for (const banana of this.bananas) {
       banana.update(deltaTime);
-      if (this.isBananaOnDonkey(banana, this.donkey)) {
+      if (this.hasCaughtBanana(banana, this.donkey)) {
+        this.ui.incrementScore();
         this.sounds.playCatchBanana();
       }
 
       if (banana.onGround) {
+        this.ui.decrementLives();
         this.sounds.playDropBanana();
       }
-      //banana.drawFilledBox();
-      // } else {
-      //   banana.drawBox();
-      // }
+
+      if (this.ui.lives === 0) {
+        this.restartGame();
+      }
     }
 
-    this.bananas = this.bananas.filter((banana) => !banana.onGround && !this.isBananaOnDonkey(banana, this.donkey));
+    this.bananas = this.bananas.filter((banana) => !banana.onGround && !this.hasCaughtBanana(banana, this.donkey));
 
     clearCanvas(this.gameCanvas);
-
     await this.world.draw();
-
-    //this.donkey.drawBox();
+    this.ui.drawUI();
+    this.ui.drawScore();
     await this.donkey.draw();
-
     await this.monkey.draw();
     for (const banana of this.bananas) {
       await banana.draw();
@@ -85,7 +92,7 @@ export class Game {
     requestAnimationFrame(this.frame);
   }
 
-  private isBananaOnDonkey(banana: Banana, donkey: Donkey): boolean {
+  private hasCaughtBanana(banana: Banana, donkey: Donkey): boolean {
     if (!donkey.image) {
       throw new Error('Banana has not been initialised');
     }
@@ -113,5 +120,17 @@ export class Game {
     this.bananas.push(banana);
     this.monkey.throwBanana();
     this.sounds.playThrowBanana();
+  }
+
+  private async restartGame() {
+    this.ui.resetScore();
+    this.bananas = [];
+
+    await this.donkey.initialise(
+      DONKEY_DEFAULTS.x,
+      DONKEY_DEFAULTS.y,
+      DONKEY_DEFAULTS.scale,
+      DONKEY_DEFAULTS.moveSpeed,
+    );
   }
 }

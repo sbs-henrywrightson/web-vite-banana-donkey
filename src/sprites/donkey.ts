@@ -1,8 +1,8 @@
-import donkeyImage from '../assets/donkey.png';
-import wheelImage from '../assets/wheel.png';
+import donkeyImage from '../assets/images/donkey.png';
+import wheelImage from '../assets/images/wheel.png';
 import { DONKEY_DEFAULTS, KEYS, SCREEN_SIZE } from '../constants';
 import type { GameCanvas } from '../game/game-canvas';
-import { drawSprite, getSpriteHitBox, loadImage } from '../game/graphics';
+import { drawSprite, loadImage } from '../game/graphics';
 import type { Keyboard } from '../game/keyboard';
 import type { Coordinate } from '../types';
 import type { Sprite } from './sprite';
@@ -81,7 +81,7 @@ export class Donkey implements Sprite {
       throw new Error('Donkey has not been initialised');
     }
 
-    const wheelScale = DONKEY_DEFAULTS.scale - DONKEY_DEFAULTS.wheelScale;
+    const wheelScale = this.scale - DONKEY_DEFAULTS.wheelScale;
     const width = this.wheelImage.width * wheelScale;
     const height = this.wheelImage.height * wheelScale;
     const centerX = this.position.x + xOffset + width / 2;
@@ -93,14 +93,5 @@ export class Donkey implements Sprite {
     drawSprite(this.context, this.wheelImage, -width / 2, -height / 2, wheelScale);
 
     this.context.restore();
-  }
-
-  public async drawBox() {
-    if (!this.image) {
-      throw new Error('Donkey has not been initialised');
-    }
-
-    const hitBox = getSpriteHitBox(this, DONKEY_DEFAULTS.hitBoxScale);
-    this.context.strokeRect(hitBox.p1.x, hitBox.p1.y, hitBox.p2.x - hitBox.p1.x, hitBox.p2.y - hitBox.p1.y);
   }
 }

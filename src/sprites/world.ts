@@ -1,4 +1,4 @@
-import worldImage from '../assets/world.jpg';
+import worldImage from '../assets/images/world.jpg';
 import type { GameCanvas } from '../game/game-canvas';
 import { drawSprite, loadImage } from '../game/graphics';
 import type { Coordinate } from '../types';
