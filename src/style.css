@@ -114,7 +114,6 @@ main {
   justify-content: center;
 
   canvas {
-    border: hsl(29, 100%, 50%) 2px solid;
     display: block;
   }
 

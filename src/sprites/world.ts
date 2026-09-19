@@ -1,13 +1,13 @@
 import worldImage from '../assets/world.jpg';
 import type { GameCanvas } from '../game/game-canvas';
 import { drawSprite, loadImage } from '../game/graphics';
+import type { Coordinate } from '../types';
 import type { Sprite } from './sprite';
 
 export class World implements Sprite {
   public readonly context: CanvasRenderingContext2D;
   public image: HTMLImageElement | null = null;
-  public x: number = 0;
-  public y: number = 0;
+  public position: Coordinate = { x: 0, y: 0 };
   public scale: number = 1;
 
   constructor(gameCanvas: GameCanvas) {
@@ -29,6 +29,6 @@ export class World implements Sprite {
       throw new Error('World has not been initialised');
     }
 
-    drawSprite(this.context, this.image, this.x, this.y, this.scale);
+    drawSprite(this.context, this.image, this.position.x, this.position.y, this.scale);
   }
 }

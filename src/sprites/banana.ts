@@ -1,15 +1,19 @@
 import bananaImage from '../assets/banana.png';
-import { BANANA_DEFAULTS, DONKEY_DEFAULTS } from '../constants';
+import { BANANA_DEFAULTS } from '../constants';
 import type { GameCanvas } from '../game/game-canvas';
-import { drawSprite, loadImage } from '../game/graphics';
+import { bezierCurve, drawSprite, loadImage } from '../game/graphics';
 import { randomNumber } from '../game/utilities';
+import type { Coordinate } from '../types';
 import type { Sprite } from './sprite';
 
 export class Banana implements Sprite {
   public readonly context: CanvasRenderingContext2D;
   public image: HTMLImageElement | null = null;
-  public x: number = 0;
-  public y: number = 0;
+  public position: Coordinate = { x: 0, y: 0 };
+  private start: Coordinate = { x: 0, y: 0 };
+  private centre: Coordinate = { x: 0, y: 0 };
+  private end: Coordinate = { x: 0, y: 0 };
+  private progress: number = 0;
   public scale: number = 1;
   private moveSpeed: number = 0;
   private angle = randomNumber(0, 359);
@@ -19,27 +23,48 @@ export class Banana implements Sprite {
   }
 
   public get onGround(): boolean {
-    return this.y >= DONKEY_DEFAULTS.groundLevel;
-  }
-
-  update(): void {
-    this.angle = (this.angle - BANANA_DEFAULTS.spinSpeed) % 360;
-
-    this.move();
-  }
-
-  private move() {
-    this.x = this.x - this.moveSpeed;
-    this.y = this.y + this.moveSpeed;
+    return this.position.y >= BANANA_DEFAULTS.groundLevel;
   }
 
   public async initialise(x: number, y: number, scale: number, moveSpeed: number = 0) {
     this.image = await loadImage(bananaImage);
 
-    this.x = x;
-    this.y = y;
     this.scale = scale;
+    this.position = { x, y };
+    this.chooseCurve();
     this.moveSpeed = moveSpeed;
+  }
+
+  chooseCurve() {
+    if (!this.image) {
+      throw new Error('Banana has not been initialised');
+    }
+
+    const peakY = this.image.height * this.scale;
+
+    this.start = { ...this.position };
+    this.end = {
+      x: randomNumber(BANANA_DEFAULTS.curveEndLeft, BANANA_DEFAULTS.curveEndRight),
+      y: BANANA_DEFAULTS.groundLevel,
+    };
+    this.centre = {
+      x: this.end.x + (this.start.x - this.end.x) / 2,
+      y: (4 * peakY - this.start.y - this.end.y) / 2,
+    };
+  }
+
+  update(deltaTime: number): void {
+    this.angle = (this.angle - BANANA_DEFAULTS.spinSpeed * deltaTime) % 360;
+
+    this.move(deltaTime);
+  }
+
+  private move(deltaTime: number) {
+    this.progress += this.moveSpeed * deltaTime;
+
+    this.position = bezierCurve(this.start, this.centre, this.end, this.progress);
+    // this.position.x = this.position.x - this.moveSpeed;
+    // this.position.y = this.position.y + this.moveSpeed;
   }
 
   public async draw() {
@@ -49,15 +74,42 @@ export class Banana implements Sprite {
 
     const width = this.image.width * this.scale;
     const height = this.image.height * this.scale;
-    const centerX = this.x + width / 2;
-    const centerY = this.y + height / 2;
+    const centerX = this.position.x + width / 2;
+    const centerY = this.position.y + height / 2;
 
     this.context.save();
     this.context.translate(centerX, centerY);
     this.context.rotate(this.angle);
 
     drawSprite(this.context, this.image, -width / 2, -height / 2, this.scale);
+    this.context.bezierCurveTo;
 
     this.context.restore();
+  }
+
+  public async drawBox() {
+    if (!this.image) {
+      throw new Error('Banana has not been initialised');
+    }
+
+    this.context.strokeRect(
+      this.position.x,
+      this.position.y,
+      this.image?.width * this.scale,
+      this.image?.height * this.scale,
+    );
+  }
+
+  public async drawFilledBox() {
+    if (!this.image) {
+      throw new Error('Banana has not been initialised');
+    }
+
+    this.context.fillRect(
+      this.position.x,
+      this.position.y,
+      this.image?.width * this.scale,
+      this.image?.height * this.scale,
+    );
   }
 }
