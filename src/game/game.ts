@@ -2,17 +2,19 @@ import { BANANA_DEFAULTS, DONKEY_DEFAULTS, MONKEY_DEFAULTS } from '../constants'
 import { Banana } from '../sprites/banana';
 import { Donkey } from '../sprites/donkey';
 import { Monkey } from '../sprites/monkey';
+import { TouchMarker } from '../sprites/touchMarker';
 import { World } from '../sprites/world';
 import { GameCanvas } from './game-canvas';
 import { clearCanvas, getSpriteHitBox } from './graphics';
 import { Keyboard } from './keyboard';
 import { Sounds } from './sounds';
 import { UI } from './ui';
-import { intersect, randomNumber } from './utilities';
+import { intersect, isMobile, randomNumber } from './utilities';
 
 export class Game {
   private readonly gameCanvas: GameCanvas;
   private readonly world: World;
+  private readonly touchMarker!: TouchMarker;
   private readonly donkey: Donkey;
   private readonly monkey: Monkey;
   private readonly sounds: Sounds;
@@ -33,7 +35,10 @@ export class Game {
     this.gameCanvas = new GameCanvas();
 
     this.world = new World(this.gameCanvas);
-    this.donkey = new Donkey(this.gameCanvas, new Keyboard());
+    if (isMobile()) {
+      this.touchMarker = new TouchMarker(this.gameCanvas);
+    }
+    this.donkey = new Donkey(this.gameCanvas, new Keyboard(this.gameCanvas.canvas));
     this.monkey = new Monkey(this.gameCanvas);
 
     this.sounds = new Sounds();
@@ -44,6 +49,9 @@ export class Game {
 
   public async initialise() {
     await this.world.initialise();
+    if (isMobile()) {
+      await this.touchMarker.initialise(30, 30, 1);
+    }
 
     await this.donkey.initialise(
       DONKEY_DEFAULTS.x,
@@ -99,6 +107,9 @@ export class Game {
   private async drawGame() {
     clearCanvas(this.gameCanvas);
     await this.world.draw();
+    if (isMobile()) {
+      await this.touchMarker.draw();
+    }
     this.ui.drawUI();
     this.ui.drawScore(this.score, this.highScore, this.lives);
     await this.donkey.draw();

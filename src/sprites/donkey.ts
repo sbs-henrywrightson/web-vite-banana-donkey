@@ -49,7 +49,10 @@ export class Donkey implements Sprite {
       const newX = this.position.x + this.moveSpeed * deltaTime;
       if (
         newX >=
-        SCREEN_SIZE.width - this.image.width * this.scale - (this.wheelImage.width * DONKEY_DEFAULTS.wheelScale) / 2
+        SCREEN_SIZE.width -
+          this.image.width * this.scale -
+          (this.wheelImage.width * DONKEY_DEFAULTS.wheelScale) / 2 -
+          10
       ) {
         return;
       }

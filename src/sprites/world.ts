@@ -20,9 +20,7 @@ export class World implements Sprite {
     this.image.height = this.context.canvas.height;
   }
 
-  update(): void {
-    throw new Error('Method not implemented');
-  }
+  update(): void {}
 
   public async draw() {
     if (!this.image) {

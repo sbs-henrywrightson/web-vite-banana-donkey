@@ -2,7 +2,7 @@ import { SCORE_DEFAULTS } from '../constants';
 import { TEXT_STRINGS } from '../constants/ui-constants';
 import type { GameCanvas } from './game-canvas';
 import { getCentredBoxPosition } from './graphics';
-import { waitForSpaceKey } from './utilities';
+import { isMobile, waitForStart } from './utilities';
 
 export class UI {
   private readonly context: CanvasRenderingContext2D;
@@ -23,43 +23,38 @@ export class UI {
   }
 
   public drawUI() {
-    this.context.font = '700 32px Orbitron';
+    this.context.font = `700 ${isMobile() ? '40' : '32'}px Orbitron`;
     this.context.lineWidth = 1;
     this.context.strokeStyle = 'black';
     this.context.fillStyle = this.gradient;
 
-    this.drawOutlinedText('Saved', SCORE_DEFAULTS.labelX, SCORE_DEFAULTS.lineHeight);
-    this.drawOutlinedText('Highest', SCORE_DEFAULTS.labelX, SCORE_DEFAULTS.lineHeight * 2);
-    this.drawOutlinedText('Drops left', SCORE_DEFAULTS.labelX, SCORE_DEFAULTS.lineHeight * 3);
+    const lineHeight = SCORE_DEFAULTS.lineHeight + (isMobile() ? 10 : 0);
+    this.drawOutlinedText('Saved', SCORE_DEFAULTS.labelX, lineHeight);
+    this.drawOutlinedText('Highest', SCORE_DEFAULTS.labelX, lineHeight * 2);
+    this.drawOutlinedText('Drops left', SCORE_DEFAULTS.labelX, lineHeight * 3);
   }
 
   public drawScore(score: number, highScore: number, lives: number) {
-    this.context.font = '28px DSEG7';
-    this.context.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    this.context.font = `${isMobile() ? '40' : '28'}px DSEG7`;
+    this.context.fillStyle = isMobile() ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.2)';
 
-    this.drawText('8888', SCORE_DEFAULTS.numberX, SCORE_DEFAULTS.lineHeight + SCORE_DEFAULTS.numberYOffset);
-    this.drawText('8888', SCORE_DEFAULTS.numberX, SCORE_DEFAULTS.lineHeight * 2 + SCORE_DEFAULTS.numberYOffset);
-    this.drawText('8888', SCORE_DEFAULTS.numberX, SCORE_DEFAULTS.lineHeight * 3 + SCORE_DEFAULTS.numberYOffset);
+    const lineHeight = SCORE_DEFAULTS.lineHeight + (isMobile() ? 10 : 0);
+    const numberX = SCORE_DEFAULTS.numberX + (isMobile() ? 40 : 0);
+    this.drawText('8888', numberX, lineHeight + SCORE_DEFAULTS.numberYOffset);
+    this.drawText('8888', numberX, lineHeight * 2 + SCORE_DEFAULTS.numberYOffset);
+    this.drawText('8888', numberX, lineHeight * 3 + SCORE_DEFAULTS.numberYOffset);
 
-    this.context.lineWidth = 0.4;
+    this.context.lineWidth = isMobile() ? 1 : 0.6;
     this.context.strokeStyle = 'black';
     this.context.fillStyle = this.gradient;
 
-    this.drawOutlinedText(
-      score.toString().padStart(4, '!'),
-      SCORE_DEFAULTS.numberX,
-      SCORE_DEFAULTS.lineHeight + SCORE_DEFAULTS.numberYOffset,
-    );
+    this.drawOutlinedText(score.toString().padStart(4, '!'), numberX, lineHeight + SCORE_DEFAULTS.numberYOffset);
     this.drawOutlinedText(
       highScore.toString().padStart(4, '!'),
-      SCORE_DEFAULTS.numberX,
-      SCORE_DEFAULTS.lineHeight * 2 + SCORE_DEFAULTS.numberYOffset,
+      numberX,
+      lineHeight * 2 + SCORE_DEFAULTS.numberYOffset,
     );
-    this.drawOutlinedText(
-      lives.toString().padStart(4, '!'),
-      SCORE_DEFAULTS.numberX,
-      SCORE_DEFAULTS.lineHeight * 3 + SCORE_DEFAULTS.numberYOffset,
-    );
+    this.drawOutlinedText(lives.toString().padStart(4, '!'), numberX, lineHeight * 3 + SCORE_DEFAULTS.numberYOffset);
   }
 
   private drawText(text: string, x: number, y: number) {
@@ -101,28 +96,21 @@ export class UI {
     this.context.strokeStyle = 'hsl(0, 100%, 50%)';
     this.context.fillStyle = 'hsl(60, 100%, 50%)';
 
-    this.drawOutlinedText(
-      'Banana Donkey 2',
-      overlayBox.x + this.getCentredTextX('Banana Donkey 2', overlaySize.width),
-      overlayBox.y + 60,
-    );
+    const title = 'Banana Donkey 2';
+    this.drawOutlinedText(title, overlayBox.x + this.getCentredTextX(title, overlaySize.width), overlayBox.y + 60);
 
-    this.context.font = '16px Chilanka';
+    this.context.font = `${isMobile() ? '20' : '16'}px Chilanka`;
     this.context.lineWidth = 0;
     this.context.strokeStyle = '';
     this.context.fillStyle = 'hsl(61, 100%, 50%)';
 
-    this.drawParagraph(
-      [...TEXT_STRINGS.instructionText],
-      overlayBox.x + 10,
-      overlayBox.y + 100,
-      overlaySize.width - 20,
-    );
+    const instructions = isMobile() ? TEXT_STRINGS.instructionTextMobile : TEXT_STRINGS.instructionText;
+    this.drawParagraph([...instructions], overlayBox.x + 10, overlayBox.y + 100, overlaySize.width - 20);
 
-    this.context.font = '14px Chilanka';
-    const text = 'Press SPACE to play';
+    this.context.font = `${isMobile() ? '18' : '14'}px Chilanka`;
+    const text = isMobile() ? 'Tap to play' : 'Press SPACE to play';
     this.drawText(text, overlayBox.x + this.getCentredTextX(text, overlaySize.width), overlayBox.y + 280);
-    await waitForSpaceKey();
+    await waitForStart();
   }
 
   public async displayDeathMessage(newHighScore: boolean) {
@@ -150,9 +138,9 @@ export class UI {
     this.drawParagraph([firedText], messageBox.x + 10, messageBox.y + 150, messageSize.width - 20);
 
     this.context.font = '14px Chilanka';
-    const text = 'Press SPACE to play again';
+    const text = isMobile() ? 'Tap to play again' : 'Press SPACE to play again';
     this.drawText(text, messageBox.x + this.getCentredTextX(text, messageSize.width), messageBox.y + 280);
-    await waitForSpaceKey();
+    await waitForStart();
   }
 
   private drawParagraph(paragraph: string[], x: number, y: number, width: number, lineHeight: number = 20) {

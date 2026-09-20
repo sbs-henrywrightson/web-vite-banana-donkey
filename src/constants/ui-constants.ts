@@ -6,7 +6,7 @@ export const SCORE_DEFAULTS = {
 
   gradientX1: 10,
   gradientY1: 0,
-  gradientX2: 250,
+  gradientX2: 300,
   gradientY2: 0,
   gradientOrange: 'hsl(27, 100%, 50%)',
   gradientYellow: 'hsl(58, 100%, 50%)',
@@ -16,6 +16,11 @@ export const TEXT_STRINGS = {
   instructionText: [
     'Naughty MONKEY is throwing away good bananas! You have been hired to stop the wastefulness.',
     'Using DONKEY, (with cursor keys), catch the BANANAS before they splat on the shore.',
+    'Banana waste will not be tolerated. If you drop too many bananas, you will be FIRED! ',
+  ],
+  instructionTextMobile: [
+    'Naughty MONKEY is throwing away good bananas! You have been hired to stop the wastefulness.',
+    'Using DONKEY catch the BANANAS before they splat on the shore.',
     'Banana waste will not be tolerated. If you drop too many bananas, you will be FIRED! ',
   ],
   newHighScoreText:
