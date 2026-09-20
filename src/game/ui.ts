@@ -24,7 +24,7 @@ export class UI {
 
   public drawUI() {
     this.context.font = `700 ${isMobile() ? '40' : '32'}px Orbitron`;
-    this.context.lineWidth = 1;
+    this.context.lineWidth = isMobile() ? 0.4 : 1;
     this.context.strokeStyle = 'black';
     this.context.fillStyle = this.gradient;
 
@@ -129,7 +129,7 @@ export class UI {
     title = 'FIRED!';
     this.drawOutlinedText(title, messageBox.x + this.getCentredTextX(title, messageSize.width), messageBox.y + 100);
 
-    this.context.font = '16px Chilanka';
+    this.context.font = `${isMobile() ? '20' : '16'}px Chilanka`;
     this.context.lineWidth = 0;
     this.context.strokeStyle = '';
     this.context.fillStyle = 'hsl(61, 100%, 50%)';
@@ -137,7 +137,7 @@ export class UI {
     const firedText = newHighScore ? TEXT_STRINGS.newHighScoreText : TEXT_STRINGS.tryAgainText;
     this.drawParagraph([firedText], messageBox.x + 10, messageBox.y + 150, messageSize.width - 20);
 
-    this.context.font = '14px Chilanka';
+    this.context.font = `${isMobile() ? '18' : '14'}px Chilanka`;
     const text = isMobile() ? 'Tap to play again' : 'Press SPACE to play again';
     this.drawText(text, messageBox.x + this.getCentredTextX(text, messageSize.width), messageBox.y + 280);
     await waitForStart();
