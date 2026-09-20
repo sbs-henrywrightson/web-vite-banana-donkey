@@ -81,52 +81,62 @@ export class Game {
     requestAnimationFrame(this.frame);
   }
 
-  private async renderFrame(timeStamp: number) {
+  private renderFrame(timeStamp: number) {
     const deltaTime = Math.min((timeStamp - this.previousFrameTime) / 1000, 0.1);
     this.previousFrameTime = timeStamp;
 
     this.donkey.update(deltaTime);
     this.monkey.update();
-    await this.spawnBanana(deltaTime);
+    this.spawnBanana(deltaTime);
 
+    const bananasToRemove = new Set<Banana>();
     for (const banana of this.bananas) {
       banana.update(deltaTime);
-      if (this.hasCaughtBanana(banana, this.donkey)) {
+      const caught = this.hasCaughtBanana(banana, this.donkey);
+      if (caught) {
         this.incrementScore();
         this.sounds.playCatchBanana();
+        bananasToRemove.add(banana);
       }
 
       if (banana.onGround) {
         this.decrementLives();
         this.sounds.playDropBanana();
+        bananasToRemove.add(banana);
       }
     }
 
-    this.bananas = this.bananas.filter((banana) => !banana.onGround && !this.hasCaughtBanana(banana, this.donkey));
+    this.bananas = this.bananas.filter((banana) => !bananasToRemove.has(banana));
 
-    await this.drawGame();
+    this.drawGame();
 
     if (this.lives === 0) {
-      await this.ui.displayDeathMessage(this.newHighScore);
-      this.restartGame();
+      void this.handleDeath();
+      return;
     }
 
     requestAnimationFrame(this.frame);
   }
 
-  private async drawGame() {
+  private async handleDeath() {
+    await this.ui.displayDeathMessage(this.newHighScore);
+    await this.restartGame();
+    requestAnimationFrame(this.frame);
+  }
+
+  private drawGame() {
     clearCanvas(this.gameCanvas);
-    await this.world.draw();
+    this.world.draw();
     if (isMobile()) {
-      await this.touchMarker.draw();
+      this.touchMarker.draw();
     }
     this.ui.drawUI();
     this.ui.drawScore(this.score, this.highScore, this.lives);
-    await this.donkey.draw();
-    await this.monkey.draw();
+    this.donkey.draw();
+    this.monkey.draw();
 
     for (const banana of this.bananas) {
-      await banana.draw();
+      banana.draw();
     }
   }
 
@@ -140,7 +150,7 @@ export class Game {
     return intersect(bananaBox, donkeyBox);
   }
 
-  private async spawnBanana(deltaTime: number) {
+  private spawnBanana(deltaTime: number) {
     this.spawnTimer += deltaTime;
 
     if (this.spawnTimer < MONKEY_DEFAULTS.throwFrequency) {
@@ -154,6 +164,10 @@ export class Game {
     }
 
     const banana = new Banana(this.gameCanvas);
+    void this.initialiseBanana(banana);
+  }
+
+  private async initialiseBanana(banana: Banana) {
     await banana.initialise(BANANA_DEFAULTS.x, BANANA_DEFAULTS.y, BANANA_DEFAULTS.scale, BANANA_DEFAULTS.moveSpeed);
     this.bananas.push(banana);
     this.monkey.throwBanana();

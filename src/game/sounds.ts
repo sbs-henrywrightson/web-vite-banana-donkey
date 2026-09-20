@@ -9,36 +9,66 @@ import squelchSound from '../assets/sounds/squelch.wav';
 import { randomNumber } from './utilities';
 
 export class Sounds {
-  private mute = false;
-  private monkeySounds: string[] = [];
+  private readonly monkeySounds = [monkey1Sound, monkey2Sound, monkey3Sound, monkey4Sound, monkey5Sound, monkey6Sound];
+  private readonly audioContext = new AudioContext();
+  private readonly audioCache = new Map<string, AudioBuffer>();
 
-  constructor(mute: boolean = false) {
-    this.mute = mute;
-    if (this.mute) return;
+  constructor() {
+    void this.loadSounds().catch(() => undefined);
 
-    this.monkeySounds = [monkey1Sound, monkey2Sound, monkey3Sound, monkey4Sound, monkey5Sound, monkey6Sound];
+    window.addEventListener('pointerdown', this.unlock, { once: true });
+    window.addEventListener('keydown', this.unlock, { once: true });
   }
   public playCatchBanana() {
-    if (this.mute) return;
-    const sound = new Audio(scrumpleSound);
-    this.playSound(sound);
+    this.playSound(scrumpleSound);
   }
 
   public playDropBanana() {
-    if (this.mute) return;
-    const sound = new Audio(squelchSound);
-    this.playSound(sound);
+    this.playSound(squelchSound);
   }
 
   public playThrowBanana() {
-    if (this.mute) return;
-    const sound = new Audio(this.monkeySounds[randomNumber(0, 5)]);
-    sound.volume = 0.7;
-    this.playSound(sound);
+    this.playSound(this.monkeySounds[randomNumber(0, 5)], 0.7);
   }
 
-  private playSound(sound: HTMLAudioElement) {
-    sound.currentTime = 0;
-    sound.play();
+  private playSound(path: string, volume: number = 1) {
+    const buffer = this.audioCache.get(path);
+    if (!buffer) {
+      return;
+    }
+
+    const source = this.audioContext.createBufferSource();
+    const gain = this.audioContext.createGain();
+    source.buffer = buffer;
+    gain.gain.value = volume;
+    source.connect(gain);
+    gain.connect(this.audioContext.destination);
+    source.start();
+  }
+
+  private unlock = () => {
+    window.removeEventListener('pointerdown', this.unlock);
+    window.removeEventListener('keydown', this.unlock);
+
+    void this.audioContext.resume().catch(() => undefined);
+  };
+
+  private async loadSounds() {
+    const paths = [scrumpleSound, squelchSound, ...this.monkeySounds];
+    await Promise.all(paths.map((path) => this.loadSound(path)));
+  }
+
+  private async loadSound(path: string) {
+    try {
+        const response = await fetch(path);
+        if (!response.ok) {
+          throw new Error(`Unable to load sound: ${path}`);
+        }
+        const data = await response.arrayBuffer();
+        const buffer = await this.audioContext.decodeAudioData(data);
+        this.audioCache.set(path, buffer);
+    } catch {
+      // A failed effect should not prevent the remaining sounds from loading.
+    }
   }
 }

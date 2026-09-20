@@ -24,7 +24,7 @@ export class Monkey implements Sprite {
 
   update(): void {}
 
-  public async draw() {
+  public draw() {
     if (!this.image) {
       throw new Error('Monkey has not been initialised');
     }

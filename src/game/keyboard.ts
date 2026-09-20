@@ -5,6 +5,7 @@ export class Keyboard {
   private readonly canvas: HTMLCanvasElement;
   private touchKey: string | null = null;
   private touchPointerId: number | null = null;
+  private touchBounds: DOMRect | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -29,6 +30,7 @@ export class Keyboard {
     }
 
     this.touchPointerId = event.pointerId;
+    this.touchBounds = this.canvas.getBoundingClientRect();
     this.canvas.setPointerCapture(event.pointerId);
     this.updateTouchKey(event);
   };
@@ -46,10 +48,15 @@ export class Keyboard {
 
     this.touchKey = null;
     this.touchPointerId = null;
+    this.touchBounds = null;
   };
 
   private updateTouchKey(event: PointerEvent) {
-    const bounds = this.canvas.getBoundingClientRect();
+    if (!this.touchBounds) {
+      return;
+    }
+
+    const bounds = this.touchBounds;
     const canvasX = ((event.clientX - bounds.left) / bounds.width) * SCREEN_SIZE.width;
 
     this.touchKey = canvasX < SCREEN_SIZE.width / 2 ? KEYS.left : KEYS.right;
@@ -67,5 +74,6 @@ export class Keyboard {
     this.keysDown.clear();
     this.touchKey = null;
     this.touchPointerId = null;
+    this.touchBounds = null;
   };
 }

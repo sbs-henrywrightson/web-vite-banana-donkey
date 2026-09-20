@@ -2,13 +2,23 @@ import type { Sprite } from '../sprites/sprite';
 import type { Coordinate, Rectangle } from '../types';
 import type { GameCanvas } from './game-canvas';
 
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
+
 export async function loadImage(path: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
+  const cachedImage = imageCache.get(path);
+  if (cachedImage) {
+    return cachedImage;
+  }
+
+  const image = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = path;
   });
+
+  imageCache.set(path, image);
+  return image;
 }
 
 export function drawSprite(

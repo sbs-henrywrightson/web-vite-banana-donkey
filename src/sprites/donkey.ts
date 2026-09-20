@@ -61,7 +61,7 @@ export class Donkey implements Sprite {
     }
   }
 
-  public async draw() {
+  public draw() {
     if (!this.image) {
       throw new Error('Donkey has not been initialised');
     }

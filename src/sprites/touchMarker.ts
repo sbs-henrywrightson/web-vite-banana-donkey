@@ -22,7 +22,7 @@ export class TouchMarker implements Sprite {
 
   update(): void {}
 
-  public async draw() {
+  public draw() {
     if (!this.image) {
       throw new Error('Touch has not been initialised');
     }

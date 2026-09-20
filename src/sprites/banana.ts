@@ -67,7 +67,7 @@ export class Banana implements Sprite {
     // this.position.y = this.position.y + this.moveSpeed;
   }
 
-  public async draw() {
+  public draw() {
     if (!this.image) {
       throw new Error('Banana has not been initialised');
     }

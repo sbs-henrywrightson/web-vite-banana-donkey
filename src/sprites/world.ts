@@ -22,7 +22,7 @@ export class World implements Sprite {
 
   update(): void {}
 
-  public async draw() {
+  public draw() {
     if (!this.image) {
       throw new Error('World has not been initialised');
     }
