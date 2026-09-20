@@ -44,7 +44,17 @@ export class Game {
     this.sounds = new Sounds();
     this.ui = new UI(this.gameCanvas);
 
+    this.readHighScore();
     this.resetScore();
+  }
+
+  private readHighScore() {
+    const highScore = localStorage.getItem('highScore') ?? '0';
+    this.highScore = Number(highScore);
+  }
+
+  private writeHighScore() {
+    localStorage.setItem('highScore', this.highScore.toString());
   }
 
   public async initialise() {
@@ -172,6 +182,7 @@ export class Game {
     this.score++;
     if (this.score > this.highScore) {
       this.highScore = this.score;
+      this.writeHighScore();
       this.newHighScore = true;
     }
   }
