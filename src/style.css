@@ -70,6 +70,8 @@
 
 body {
   margin: 0;
+  min-height: 100svh;
+  background: linear-gradient(to bottom, hsl(206, 100%, 43%), hsl(171 28% 32%));
 }
 
 h1,
@@ -135,6 +137,9 @@ main {
 
   canvas {
     display: block;
+    width: min(800px, 100%, calc(100svh * 4 / 3));
+    height: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .score {
