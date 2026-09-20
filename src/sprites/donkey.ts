@@ -36,7 +36,7 @@ export class Donkey implements Sprite {
       throw new Error('Donkey has not been initialised');
     }
 
-    if (this.keyboard.isDown(KEYS.a) || this.keyboard.isDown(KEYS.left)) {
+    if (this.keyboard.isDown(KEYS.left)) {
       const newX = this.position.x - this.moveSpeed * deltaTime;
       if (newX <= 5 * this.scale) {
         return;
@@ -45,7 +45,7 @@ export class Donkey implements Sprite {
       this.wheelAngle = (this.wheelAngle - DONKEY_DEFAULTS.wheelTurnSpeed) % 360;
     }
 
-    if (this.keyboard.isDown(KEYS.d) || this.keyboard.isDown(KEYS.right)) {
+    if (this.keyboard.isDown(KEYS.right)) {
       const newX = this.position.x + this.moveSpeed * deltaTime;
       if (
         newX >=

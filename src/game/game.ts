@@ -18,6 +18,11 @@ export class Game {
   private readonly sounds: Sounds;
   private readonly ui: UI;
 
+  private score = 0;
+  private highScore = 0;
+  private _lives = 0;
+  private newHighScore = false;
+
   private bananas: Banana[] = [];
   private previousFrameTime: number = 0.1;
   private spawnTimer = 0;
@@ -49,6 +54,10 @@ export class Game {
   }
 
   public async play() {
+    await this.drawGame();
+
+    await this.ui.displayWelcomeMessage();
+
     requestAnimationFrame(this.frame);
   }
 
@@ -71,25 +80,31 @@ export class Game {
         this.ui.decrementLives();
         this.sounds.playDropBanana();
       }
-
-      if (this.ui.lives === 0) {
-        this.restartGame();
-      }
     }
 
     this.bananas = this.bananas.filter((banana) => !banana.onGround && !this.hasCaughtBanana(banana, this.donkey));
 
+    await this.drawGame();
+
+    if (this.ui.lives === 0) {
+      await this.ui.displayDeathMessage();
+      this.restartGame();
+    }
+
+    requestAnimationFrame(this.frame);
+  }
+
+  private async drawGame() {
     clearCanvas(this.gameCanvas);
     await this.world.draw();
     this.ui.drawUI();
     this.ui.drawScore();
     await this.donkey.draw();
     await this.monkey.draw();
+
     for (const banana of this.bananas) {
       await banana.draw();
     }
-
-    requestAnimationFrame(this.frame);
   }
 
   private hasCaughtBanana(banana: Banana, donkey: Donkey): boolean {

@@ -6,9 +6,9 @@ export const DONKEY_DEFAULTS = {
   moveSpeed: 500,
   wheelOffsetY: 120,
   wheelOffsetXLeft: 15,
-  wheelOffsetXRight: 157,
-  wheelScale: 0.3,
-  wheelTurnSpeed: 0.05,
+  wheelOffsetXRight: 147,
+  wheelScale: 0.2,
+  wheelTurnSpeed: 0.075,
   minX: 0,
   maxX: 600,
 } as const;

@@ -46,3 +46,7 @@ export function getSpriteHitBox(sprite: Sprite, hitScale: number = 1): Rectangle
     },
   };
 }
+
+export function getCentredBoxPosition(canvas: HTMLCanvasElement, w: number, h: number): Coordinate {
+  return { x: (canvas.width - w) / 2, y: (canvas.height - h) / 2 };
+}

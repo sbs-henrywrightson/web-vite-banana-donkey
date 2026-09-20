@@ -50,12 +50,22 @@
 
 @font-face {
   font-family: 'Orbitron';
-  src: url('./assets/fonts/Orbitron-VariableFont_wght.ttf') format('woff2');
+  src: url('./assets/fonts/Orbitron-VariableFont_wght.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'DSEG7Classic-Bold';
+  font-family: 'DSEG7';
   src: url('./assets/fonts/DSEG7Classic-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Slackey';
+  src: url('./assets/fonts/Slackey-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Chilanka';
+  src: url('./assets/fonts/Chilanka-Regular.ttf') format('truetype');
 }
 
 body {
