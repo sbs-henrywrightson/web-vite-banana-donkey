@@ -6,15 +6,7 @@ import { waitForSpaceKey } from './utilities';
 
 export class UI {
   private readonly context: CanvasRenderingContext2D;
-  private score = 0;
-  private highScore = 0;
-  private _lives = 0;
-  private newHighScore = false;
   private gradient: CanvasGradient;
-
-  public get lives(): number {
-    return this._lives;
-  }
 
   constructor(gameCanvas: GameCanvas) {
     this.context = gameCanvas.context;
@@ -28,26 +20,6 @@ export class UI {
     this.gradient.addColorStop(0, SCORE_DEFAULTS.gradientOrange);
     this.gradient.addColorStop(0.6, SCORE_DEFAULTS.gradientYellow);
     this.gradient.addColorStop(1, SCORE_DEFAULTS.gradientOrange);
-
-    this.resetScore();
-  }
-
-  public resetScore() {
-    this.score = 0;
-    this._lives = 3;
-    this.newHighScore = false;
-  }
-
-  public incrementScore() {
-    this.score++;
-    if (this.score > this.highScore) {
-      this.highScore = this.score;
-      this.newHighScore = true;
-    }
-  }
-
-  public decrementLives() {
-    this._lives--;
   }
 
   public drawUI() {
@@ -61,7 +33,7 @@ export class UI {
     this.drawOutlinedText('Drops left', SCORE_DEFAULTS.labelX, SCORE_DEFAULTS.lineHeight * 3);
   }
 
-  public drawScore() {
+  public drawScore(score: number, highScore: number, lives: number) {
     this.context.font = '28px DSEG7';
     this.context.fillStyle = 'rgba(0, 0, 0, 0.2)';
 
@@ -74,17 +46,17 @@ export class UI {
     this.context.fillStyle = this.gradient;
 
     this.drawOutlinedText(
-      this.score.toString().padStart(4, '!'),
+      score.toString().padStart(4, '!'),
       SCORE_DEFAULTS.numberX,
       SCORE_DEFAULTS.lineHeight + SCORE_DEFAULTS.numberYOffset,
     );
     this.drawOutlinedText(
-      this.highScore.toString().padStart(4, '!'),
+      highScore.toString().padStart(4, '!'),
       SCORE_DEFAULTS.numberX,
       SCORE_DEFAULTS.lineHeight * 2 + SCORE_DEFAULTS.numberYOffset,
     );
     this.drawOutlinedText(
-      this._lives.toString().padStart(4, '!'),
+      lives.toString().padStart(4, '!'),
       SCORE_DEFAULTS.numberX,
       SCORE_DEFAULTS.lineHeight * 3 + SCORE_DEFAULTS.numberYOffset,
     );
@@ -147,12 +119,13 @@ export class UI {
       overlaySize.width - 20,
     );
 
+    this.context.font = '14px Chilanka';
     const text = 'Press SPACE to play';
     this.drawText(text, overlayBox.x + this.getCentredTextX(text, overlaySize.width), overlayBox.y + 280);
     await waitForSpaceKey();
   }
 
-  public async displayDeathMessage() {
+  public async displayDeathMessage(newHighScore: boolean) {
     const messageSize: { width: number; height: number } = { width: 500, height: 300 };
 
     const messageBox = getCentredBoxPosition(this.context.canvas, messageSize.width, messageSize.height);
@@ -173,9 +146,10 @@ export class UI {
     this.context.strokeStyle = '';
     this.context.fillStyle = 'hsl(61, 100%, 50%)';
 
-    const firedText = this.newHighScore ? TEXT_STRINGS.newHighScoreText : TEXT_STRINGS.tryAgainText;
+    const firedText = newHighScore ? TEXT_STRINGS.newHighScoreText : TEXT_STRINGS.tryAgainText;
     this.drawParagraph([firedText], messageBox.x + 10, messageBox.y + 150, messageSize.width - 20);
 
+    this.context.font = '14px Chilanka';
     const text = 'Press SPACE to play again';
     this.drawText(text, messageBox.x + this.getCentredTextX(text, messageSize.width), messageBox.y + 280);
     await waitForSpaceKey();

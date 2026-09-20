@@ -20,7 +20,7 @@ export class Game {
 
   private score = 0;
   private highScore = 0;
-  private _lives = 0;
+  private lives = 0;
   private newHighScore = false;
 
   private bananas: Banana[] = [];
@@ -38,6 +38,8 @@ export class Game {
 
     this.sounds = new Sounds();
     this.ui = new UI(this.gameCanvas);
+
+    this.resetScore();
   }
 
   public async initialise() {
@@ -72,12 +74,12 @@ export class Game {
     for (const banana of this.bananas) {
       banana.update(deltaTime);
       if (this.hasCaughtBanana(banana, this.donkey)) {
-        this.ui.incrementScore();
+        this.incrementScore();
         this.sounds.playCatchBanana();
       }
 
       if (banana.onGround) {
-        this.ui.decrementLives();
+        this.decrementLives();
         this.sounds.playDropBanana();
       }
     }
@@ -86,8 +88,8 @@ export class Game {
 
     await this.drawGame();
 
-    if (this.ui.lives === 0) {
-      await this.ui.displayDeathMessage();
+    if (this.lives === 0) {
+      await this.ui.displayDeathMessage(this.newHighScore);
       this.restartGame();
     }
 
@@ -98,7 +100,7 @@ export class Game {
     clearCanvas(this.gameCanvas);
     await this.world.draw();
     this.ui.drawUI();
-    this.ui.drawScore();
+    this.ui.drawScore(this.score, this.highScore, this.lives);
     await this.donkey.draw();
     await this.monkey.draw();
 
@@ -138,7 +140,7 @@ export class Game {
   }
 
   private async restartGame() {
-    this.ui.resetScore();
+    this.resetScore();
     this.bananas = [];
 
     await this.donkey.initialise(
@@ -147,5 +149,23 @@ export class Game {
       DONKEY_DEFAULTS.scale,
       DONKEY_DEFAULTS.moveSpeed,
     );
+  }
+
+  private resetScore() {
+    this.score = 0;
+    this.lives = 3;
+    this.newHighScore = false;
+  }
+
+  private incrementScore() {
+    this.score++;
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      this.newHighScore = true;
+    }
+  }
+
+  private decrementLives() {
+    this.lives--;
   }
 }
